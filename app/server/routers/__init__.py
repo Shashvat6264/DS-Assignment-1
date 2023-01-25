@@ -9,7 +9,7 @@ router = APIRouter()
 
 @router.post('/topics')
 async def createTopic(name: str = Body()):
-    main_dq.createTopic(name)
+    await main_dq.createTopic(name)
     return generic_Response(data={
         "status": "success",
         "message": f"Topic '{name}' created successfully",
@@ -17,15 +17,16 @@ async def createTopic(name: str = Body()):
     
 @router.get('/topics')
 async def listTopics():
-    topics = main_dq.listTopics()
+    topics = await main_dq.listTopics()
+    print(topics)
     return generic_Response(data={
         "status": "success",
         "topics": topics
     }, status_code=status.HTTP_200_OK)
 
-@router.get('/size')
+@router.post('/size')
 async def getSize(topic: str = Body(), consumer_id: int = Body()):
-    topic_size = main_dq.size(topic, consumer_id)
+    topic_size = await main_dq.size(topic, consumer_id)
     return generic_Response(data={
         "status": "success",
         "size": topic_size
