@@ -23,3 +23,13 @@ async def topicdoesnotexist_exception_handler(request: Request, error: TopicDoes
             "message": f"{str(error)}"
         },
     )
+    
+@app.exception_handler(QueueEmpty)
+async def queueempty_exception_handler(request: Request, error: QueueEmpty):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={
+            "status": "failure",
+            "message": f"{str(error)}"
+        }
+    )
