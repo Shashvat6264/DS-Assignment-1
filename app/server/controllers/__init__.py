@@ -5,3 +5,5 @@ from .Message import *
 from .Queue import *
 from .Topic import *
 from .DistributedQueue import *
+from .DatabaseManager import *
+from .SqlDM import *

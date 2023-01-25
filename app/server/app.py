@@ -5,6 +5,8 @@ from .system import *
 
 app = FastAPI()
 
+from .exceptions import *
+
 @app.get("/health", tags=["HEALTH"])
 async def health():
     return {"message": "Server Running Successfully..."}
