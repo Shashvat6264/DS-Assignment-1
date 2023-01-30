@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, status
+from fastapi import APIRouter, Body, status, Query
 from .producer import router as producerRouter
 from .consumer import router as consumerRouter
 
@@ -24,8 +24,8 @@ async def listTopics():
         "topics": topics
     }, status_code=status.HTTP_200_OK)
 
-@router.post('/size')
-async def getSize(topic: str = Body(), consumer_id: int = Body()):
+@router.get('/size')
+async def getSize(topic: str = Query(default=...), consumer_id: int = Query(default=...)):
     topic_size = await main_dq.size(topic, consumer_id)
     return generic_Response(data={
         "status": "success",
