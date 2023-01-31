@@ -18,6 +18,8 @@ class DistributedQueue:
                 self.__topics[topicInstance.name] = Topic.modelToObj(topicInstance, self.__database)
     
     async def createTopic(self, topic_name: str):
+        if topic_name in self.__topics.keys():
+            raise TopicAlreadyExists(topic_name, "Topic Already exists")
         self.__topics[topic_name] = Topic(topic_name, self.__database)
         await self.__topics[topic_name].save()
     
@@ -39,15 +41,21 @@ class DistributedQueue:
         return producer.getId()
     
     async def enqueue(self, topic_name: str, id: int, message: str):
+        if topic_name not in self.__topics.keys():
+            raise TopicDoesNotExist(topic_name, "Topic does not exist")
         msg = Message(message)
         await msg.save(self.__database)
         await self.__topics[topic_name].pushMessage(id, msg)
     
     async def dequeue(self, topic_name: str, id: int) -> str:
+        if topic_name not in self.__topics.keys():
+            raise TopicDoesNotExist(topic_name, "Topic does not exist")
         message = await self.__topics[topic_name].popMessage(id)
         return message.getMessage()
         
     async def size(self, topic_name: str, id: int) -> int:
+        if topic_name not in self.__topics.keys():
+            raise TopicDoesNotExist(topic_name, "Topic does not exist")
         return await self.__topics[topic_name].getSize(id)
     
     

@@ -6,7 +6,7 @@ from ..utils import *
 router = APIRouter()
 
 @router.post('/register', response_description="Register Producer")
-async def register(topic: str = Body()):
+async def register(topic = Body(..., embed=True)):
     producer_id = await main_dq.registerProducer(topic)
     return generic_Response(data = {
         "status": "success",

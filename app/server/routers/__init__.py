@@ -8,7 +8,7 @@ from ..utils import *
 router = APIRouter()
 
 @router.post('/topics')
-async def createTopic(name: str = Body()):
+async def createTopic(name: str = Body(..., embed=True)):
     await main_dq.createTopic(name)
     return generic_Response(data={
         "status": "success",

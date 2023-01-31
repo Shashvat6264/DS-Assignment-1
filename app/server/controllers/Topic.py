@@ -39,6 +39,7 @@ class Topic:
             await self.__database.updateById(TopicModel, self.__dbId, producers=topicInstance.producers)
                     
     def __authorizeConsumer(self, id: int) -> bool:
+        print(self.__consumers.keys())
         if self.__consumers.get(id) is not None:
             return True
         else:

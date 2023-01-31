@@ -1,42 +1,54 @@
 import requests
 from .client import Client
+from .exceptions import *
+from .utils import *
 
 class Consumer(Client):
-    
     def __init__(self, topics, broker):
+        super().__init__()
         self.broker = broker
         self.register(topics)
-        
-    def register(self, topics): 
+    
+    @convertToList
+    def register(self, topics):
         for topic in topics:
-            registerResponse = requests.post(self.broker + '/producer/register', data = {'topic': topic})
+            if topic in self.topicIds.keys():
+                raise AlreadyRegistered('Consumer has already registered for topic: ' + topic)
+            registerResponse = requests.post(self.broker + '/consumer/register', json = {'topic': topic})
             if registerResponse.status_code == 200:
-                self.topics.append(topic)
-                self.topicIDs[topic] = registerResponse.json()['producer_id']
+                self.topicIds[topic] = registerResponse.json()['consumer_id']
             else:
-                print(registerResponse.json()["message"])
-                
+                raise TopicDoesNotExist(registerResponse.json()["message"])
+            
+    @convertToList
     def dequeue(self, topics):
+        responses = []
         for topic in topics:
-            dequeueResponse = requests.post(self.broker + '/consumer/consume', data = {'topic': topic, 'consumer_id': self.topicIDs[topic]})
+            if topic not in self.topicIds.keys():
+                raise UnauthorizedException("This consumer is not authorized to pull messages from topic: " + topic)
+            dequeueResponse = requests.get(self.broker + '/consumer/consume', params = {'topic': topic, 'consumer_id': self.topicIds[topic]})
             if dequeueResponse.status_code == 200:
-                return dequeueResponse.json()["message"]
-            else :
-                print(dequeueResponse.json()["message"])
-                return None
+                responses.append(dequeueResponse.json()["message"])
+            elif dequeueResponse.status_code == 401:
+                raise UnauthorizedException(dequeueResponse.json()["message"])
+            else:
+                raise Exception(dequeueResponse.json()["message"])
+        return responses
             
     def get_size(self, topic):
-        sizeResponse = requests.get(self.broker + "/size", data = {"topic":topic, "consumer_id": self.topicIds[topic]})
+        if topic not in self.topicIds.keys():
+            raise UnauthorizedException("This consumer is not authorized to pull messages from topic: " + topic)
+        sizeResponse = requests.get(self.broker + "/size", params = {"topic":topic, "consumer_id": self.topicIds[topic]})
         if sizeResponse.status_code == 200:
             return sizeResponse.json()["size"]
+        elif sizeResponse.status_code == 401:
+            raise UnauthorizedException(sizeResponse.json()["message"])
         else:
-            print(sizeResponse.json()["message"])
-            return None
+            raise TopicDoesNotExist(sizeResponse.json()["message"])
                 
-    
     def can_dequeue(self, topic):
         curr_size = self.get_size(topic)
-        if curr_size == None:
+        if curr_size == None or curr_size == 0:
             return False
         return True
         

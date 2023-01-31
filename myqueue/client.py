@@ -1,23 +1,25 @@
 import requests
+from .exceptions import *
+from .utils import *
 
 class Client:
-    topics = []
-    broker = None
-    topicIds = {}
+    def __init__(self):
+        self.broker = None
+        self.topicIds = {}
     
+    @convertToList
     def create_topic(self, topics):
-        self.topics.extend(topics)
         for topic in topics:
-            registerResponse = requests.post(self.broker + '/topics', data = {'topic': topic})
-            print(registerResponse.json()["message"])
+            registerResponse = requests.post(self.broker + '/topics', json = {'name': topic})
+            if registerResponse.status_code != 201:
+                raise TopicAlreadyExists(registerResponse.json()["message"])
             
     def list_topics(self):
-        topics = requests.get(self.broker + '/topics')
-        if topics.status_code == 200:
-            return topics.json()["topics"]
-        else: 
-            print(topics.json()["message"])
-        return None
+        response = requests.get(self.broker + '/topics')
+        if response.status_code == 200:
+            return response.json()["topics"]
+        else:
+            raise Exception(response.json()["message"])
     
     
     
