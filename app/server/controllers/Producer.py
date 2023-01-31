@@ -10,9 +10,6 @@ async def generate_Producer(database = None):
     return producer
 
 class Producer:
-    genId = 0
-    lock = asyncio.Lock()
-    
     def __init__(self, id):
         self.__topic = None
         self.__id = id

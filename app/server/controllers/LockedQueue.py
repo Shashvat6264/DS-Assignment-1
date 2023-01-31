@@ -23,3 +23,9 @@ class LockedQueue(Queue):
         message = super().pop()
         self.__lock.release()
         return message
+    
+    async def size(self) -> int:
+        await self.__lock.acquire()
+        size = super().size()
+        self.__lock.release()
+        return size

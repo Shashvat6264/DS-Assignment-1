@@ -9,10 +9,7 @@ async def generate_Consumer(database = None):
         consumer = Consumer(instance.id)
     return consumer
 
-class Consumer:
-    genId = 0
-    lock = asyncio.Lock()
-    
+class Consumer:    
     def __init__(self, id):
         self.__id = id
         

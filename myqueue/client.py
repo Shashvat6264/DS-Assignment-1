@@ -10,7 +10,7 @@ class Client:
     @convertToList
     def create_topic(self, topics):
         for topic in topics:
-            registerResponse = requests.post(self.broker + '/topics', json = {'name': topic})
+            registerResponse = requests.post(self.broker + '/topics', json = {'topic_name': topic})
             if registerResponse.status_code != 201:
                 raise TopicAlreadyExists(registerResponse.json()["message"])
             

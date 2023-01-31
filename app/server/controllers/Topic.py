@@ -39,7 +39,6 @@ class Topic:
             await self.__database.updateById(TopicModel, self.__dbId, producers=topicInstance.producers)
                     
     def __authorizeConsumer(self, id: int) -> bool:
-        print(self.__consumers.keys())
         if self.__consumers.get(id) is not None:
             return True
         else:
@@ -75,7 +74,7 @@ class Topic:
     async def getSize(self, id: int):
         if not self.__authorizeConsumer(id):
             raise UnauthorizedException(message="Consumer is not subscribed to this topics")
-        return self.__queue.size()
+        return await self.__queue.size()
     
     def modelToObj(instance, database):
         topic = Topic(topic_name=instance.name)

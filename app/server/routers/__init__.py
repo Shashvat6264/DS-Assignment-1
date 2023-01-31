@@ -8,17 +8,16 @@ from ..utils import *
 router = APIRouter()
 
 @router.post('/topics')
-async def createTopic(name: str = Body(..., embed=True)):
-    await main_dq.createTopic(name)
+async def createTopic(topic_name: str = Body(..., embed=True)):
+    await main_dq.createTopic(topic_name)
     return generic_Response(data={
         "status": "success",
-        "message": f"Topic '{name}' created successfully",
+        "message": f"Topic '{topic_name}' created successfully",
     }, status_code=status.HTTP_201_CREATED)
     
 @router.get('/topics')
 async def listTopics():
     topics = await main_dq.listTopics()
-    print(topics)
     return generic_Response(data={
         "status": "success",
         "topics": topics
